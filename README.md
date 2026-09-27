@@ -1,12 +1,18 @@
 # KeamananSiber_Kelompok2
 
-## Deskripsi Skenario Proyek
+### Deskripsi Skenario Proyek: Pengamanan Sistem Automatic Chicken Feeder Berbasis IoT
 
-Proyek ini mensimulasikan skenario pengujian keamanan jaringan dan analisis ancaman Siber menggunakan arsitektur terisolasi (segmentasi jaringan). 
+Proyek ini mensimulasikan skenario pengujian keamanan dan pemantauan ancaman siber pada infrastruktur **Automatic Chicken Feeder (Sistem Pemberi Pakan Ayam Otomatis Berbasis IoT)**. Skenario dirancang menggunakan arsitektur jaringan terfragmentasi (segmentasi subnet) untuk mengisolasi komponen penyerang, target IoT, dan sistem pemantauan keamanan.
 
-Skenario dibagi menjadi 3 zona utama:
-1. **Attacker Zone (`10.10.2.0/24`):** Menggunakan Kali Linux untuk mensimulasikan berbagai teknik serangan eksternal (penetrasi/eksploitasi) terhadap layanan yang rentan.
-2. **Target Zone (`10.20.2.0/24`):** Menggunakan Metasploitable sebagai target server yang memiliki berbagai celah keamanan/layanan rentan untuk diuji.
-3. **Monitoring & Management Zone (`10.30.2.0/24`):** Menggunakan Security Onion sebagai Network Intrusion Detection System (NIDS). Security Onion memiliki dua fungsi utama:
-   - **Management Interface (`10.30.2.2`):** Untuk mengakses dashboard monitoring dan analisis log security.
-   - **Sensor Interface (No IP):** Menerima salinan lalu lintas data (*port mirroring/SPAN*) dari jalur interaksi Attacker dan Target (`G0/0` & `G0/1`) melalui port `G0/3` router untuk mendeteksi serta menganalisis aktivitas serangan secara real-time.
+### Pembagian Zona Jaringan & Peran Node:
+
+1. **Target Zone — IoT Feeder Controller (`10.20.2.0/24`):**
+   * **Node (`10.20.2.2`):** Berperan sebagai Server Pusat / Gateway IoT (diwakili oleh Metasploitable) yang mengontrol jadwal pemberian pakan otomatis, menyimpan log penimbangan/pakan, dan menyediakan API/Web Interface untuk monitoring peternak.
+   * **Potensi Vabilitas:** Server menjalankan layanan web/database default yang rentan terhadap serangan injection, unauthorized control, atau Denial of Service (DoS) yang dapat mematikan fungsi pemberian pakan otomatis.
+
+2. **Attacker Zone — External Threat (`10.10.2.0/24`):**
+   * **Node (`10.10.2.2`):** Berperan sebagai penyerang luar/peretas (menggunakan Kali Linux) yang mencoba melakukan scanning port, exploitasi web API feeder, atau serangan pemutusan akses agar sistem pakan otomatis tidak berfungsi.
+
+3. **Management & Monitoring Zone (`10.30.2.0/24`):**
+   * **Security Onion Dashboard (`10.30.2.2`):** Interface khusus Blue Team untuk memantau alert keamanan, memproses data log, dan menganalisis trafik jaringan secara isolated.
+   * **Security Onion Sensor (NIC 3 / No IP):** Terhubung ke port mirror router (`G0/3`) untuk menyadap seluruh lalu lintas data antara Kali Linux (`G0/0`) dan IoT Feeder Server (`G0/1`). Sensor ini bertugas mendeteksi aktivitas mencurigakan (seperti *brute force*, *command injection*, atau *malicious payload*) yang ditujukan ke sistem pakan otomatis tanpa mengganggu kinerja operasional server IoT.
