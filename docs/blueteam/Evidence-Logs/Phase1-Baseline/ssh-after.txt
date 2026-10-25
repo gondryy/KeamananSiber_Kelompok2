@@ -1,0 +1,7 @@
+maxauthtries 3
+maxsessions 2
+permitrootlogin no
+x11forwarding no
+tcpkeepalive no
+allowagentforwarding no
+loglevel VERBOSE

@@ -1,0 +1,9 @@
+# Nmap 7.70 scan initiated Sat Oct 24 10:58:09 2026 as: nmap -sV -p- -oN nmap-after.txt 10.20.2.2
+Nmap scan report for 10.20.2.2
+Host is up (0.0010s latency).
+Not shown: 65534 filtered ports
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Oct 24 11:00:12 2026 -- 1 IP address (1 host up) scanned in 123.38 seconds
