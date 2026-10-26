@@ -1,5 +1,16 @@
 # KeamananSiber_Kelompok2
 
+**TEK1314 Keamanan Siber** | Kelas B
+
+## Anggota & Peran
+
+| Nama                   | NIM         | Peran        |
+| :--------------------- | :---------- | :----------- |
+| Dini Eka Rahmawati    | J0404241031 | Lead Analyst |
+| Juan Benedict Tanoto  | J0404241001 | Red Team     |
+| Phiello Abraham | J0404241025 | Blue Team    |
+| Muhamad Raditya | J0404241096 | Blue Team    |
+
 ### Deskripsi Skenario Proyek: Pengamanan Sistem Automatic Chicken Feeder Berbasis IoT
 
 Proyek ini mensimulasikan skenario pengujian keamanan dan pemantauan ancaman siber pada infrastruktur **Automatic Chicken Feeder (Sistem Pemberi Pakan Ayam Otomatis Berbasis IoT)**. Skenario dirancang menggunakan arsitektur jaringan terfragmentasi (segmentasi subnet) untuk mengisolasi komponen penyerang, target IoT, dan sistem pemantauan keamanan.
