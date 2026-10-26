@@ -9,7 +9,7 @@ Dokumen ini adalah rencana pengujian penetrasi atau serangan dari Attacker Node 
 | ID Skenario | Kategori Serangan        | Layanan / Endpoint Target                         | Tools yang Digunakan |
 | :---------- | :----------------------- | :------------------------------------------------ | :------------------- |
 | **SCN-01**  | Reconnaissance | Seluruh port Target (`10.20.2.2`)             | `nmap`               |
-| **SCN-02**  | Reconnaissance / Web Enumeration | http://10.20.2.2:80 (Aplikasi Web IoT) | `Gobuster` atau `ffuf`              |
+| **SCN-02** | Web/API/Protokol IoT | http://10.20.2.2:80 (Form/API Web Feeder) | `Burp Suite` atau `OWASP ZAP` |
 | **SCN-03**  | Availability / Denial of Service | http://10.20.2.2:80 (Layanan Apache) | `Slowloris`         |
 
 ## 3. Rincian Skenario Serangan
@@ -27,18 +27,19 @@ Dokumen ini adalah rencana pengujian penetrasi atau serangan dari Attacker Node 
   - Port 22/tcp (SSH) berstatus `filtered`, membuktikan bahwa UFW berhasil memblokir akses dari segmen IP `10.10.2.0/24`.
   - Deteksi versi pada Port 80 hanya menampilkan "Apache httpd" tanpa menyebutkan versi spesifik (seperti "2.4.52") atau jenis OS ("Ubuntu"). 
 
-### SCN-02: Web Directory Enumeration & Endpoint Discovery
-- **Kategori:** Reconnaissance / Web Enumeration
-- **Tools yang digunakan:** `Gobuster` atau `ffuf`
-- **Target Spesifik:** `http://10.20.2.2:80`
-- **Korelasi Celah / Tech Stack:** Pengujian ini mengeksploitasi potensi adanya endpoint API atau direktori administratif (seperti `/admin`, `/config`, atau `/api/feed`) yang tidak disembunyikan dengan benar atau tidak memiliki perlindungan autentikasi awal. Karena laporan Lynis menunjukkan ketiadaan WAF (Web Application Firewall) atau pembatasan rate-limit bawaan pada Apache, server kemungkinan akan menerima ribuan tebakan direktori tanpa memblokir IP penyerang.
+### SCN-02: Eksploitasi Kerentanan Aplikasi Web (Web/API/Protokol IoT)
+- **ID Skenario:** *SCN-02*
+- **Kategori:** Web/API/Protokol IoT
+- **Tools yang digunakan:** `Burp Suite` (atau `OWASP ZAP`)
+- **Target Spesifik:** `http://10.20.2.2:80` (Aplikasi Web IoT Apache)
+- **Korelasi Celah / Tech Stack:** Pengujian ini mengeksploitasi ketiadaan perlindungan Web Application Firewall (WAF) seperti ModSecurity berdasarkan temuan audit Lynis. Skenario ini bertujuan menyuntikkan muatan berbahaya (*payload*) seperti SQL Injection atau memanipulasi parameter antarmuka web (misalnya parameter penjadwalan pakan) untuk melihat apakah peladen memiliki filter validasi input yang memadai di sisi *backend*.
 - **Metodologi Pengujian:** 
-  1. Menyiapkan daftar kata (*wordlist*) yang umum digunakan untuk aplikasi web dan IoT (misalnya dari SecLists).
-  2. Menjalankan serangan **directory brute-force** untuk menebak jalur URL tersembunyi pada target.
-  3. Menganalisis kode respons HTTP (mencari `200 OK` atau `301 Redirect`) untuk memetakan struktur internal situs web.
+  1. Penyerang mengonfigurasi `Burp Suite` sebagai *proxy* untuk mencegat (*intercept*) lalu lintas HTTP dari peramban penyerang ke peladen `10.20.2.2`.
+  2. Penyerang memanipulasi permintaan HTTP yang sah dengan memasukkan muatan *SQL Injection* (seperti `' OR 1=1--`) pada kolom login, atau memodifikasi parameter API pengontrol alat.
+  3. Mengirimkan permintaan yang telah dimodifikasi tersebut dan menganalisis respons dari peladen web.
 - **Hasil yang Diharapkan:** 
-  - Penyerang berhasil memetakan struktur direktori web dan menemukan endpoint kritis (misalnya panel kontrol pakan).
-  - Di sisi Blue Team, sensor Security Onion mendeteksi anomali volume lalu lintas HTTP yang tinggi (lonjakan pesan `404 Not Found` dan `200 OK` yang masif dari satu IP `10.10.2.2`).
+  - Penyerang berhasil menembus otentikasi tanpa kredensial yang sah atau berhasil mengeksekusi tindakan administratif secara tidak sah.
+  - Sensor Security Onion pada *Blue Team* (seperti Snort atau analisis log HTTP dari Zeek) berhasil mendeteksi dan memunculkan peringatan (*alert*) terkait adanya lalu lintas yang mengandung anomali injeksi SQL atau muatan HTTP berbahaya.
 
 ### 3. SCN-03: Application Layer Denial of Service
 - **Kategori:** Availability / Denial of Service
